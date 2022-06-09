@@ -4,24 +4,29 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./main.css" />
     <title>Document</title>
   </head>
   <body>
-    <h1>firebase</h1>
-    <form action="">
-      <input type="number" placeholder="id" class="id" />
+    <h1>bình luận</h1>
+    <form class="comment-from" action="">
       <input type="text" class="name" name="name" placeholder="name" />
+
       <input
         type="text"
-        class="password"
-        name="password"
-        placeholder="password"
+        class="content"
+        name="content"
+        placeholder="nội dung bình luận..."
       />
 
-      <button type="button" id="create">create</button>
-      <button type="button" id="delete">delete</button>
+      <button type="button" id="create">bình luận</button>
+      <!-- <button type="button" id="select">select</button>
+      <button type="button" id="update">update</button>
+
+      <button type="button" id="delete">delete</button> -->
       <!-- <button type="button" id="create">create</button> -->
     </form>
+    <div class="container"></div>
     <script type="module">
       // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.8.2/firebase-app.js";
@@ -44,31 +49,169 @@
         getDatabase,
         ref,
         set,
+        get,
         child,
         update,
         remove,
       } from "https://www.gstatic.com/firebasejs/9.8.2/firebase-database.js";
       const db = getDatabase();
       const name = document.querySelector(".name");
-      const id = document.querySelector(".id");
 
-      const password = document.querySelector(".password");
+      const content = document.querySelector(".content");
       const create = document.querySelector("#create");
+      const select = document.querySelector("#select");
+      const updatee = document.querySelector("#update");
+      const deletee = document.querySelector("#delete");
+
       const deletE = document.querySelector("#delete");
+      const container = document.querySelector(".container");
+      const commentfrom = document.querySelector(".comment-from");
+      console.log(container);
+      function rederComments(item) {
+        let template = `
+        <div class="item">
+        <h2>${item.name}</h2>
+        <p>
+          ${item.content}
+        </p>
+      </div>
+        `;
+        container.insertAdjacentHTML("beforeend", template);
+      }
+
+      var idComment = 1;
       function insertData() {
-        set(ref(db, "products/" + id.value), {
-          name: name.value,
-          pass: password.value,
-          id: id.value,
-        })
-          .then(() => {
-            alert("data stored successfully");
+        const dbref = ref(db);
+
+        get(child(dbref, "products/"))
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              console.log(snapshot.val());
+              container.innerHTML = "";
+              snapshot.val().forEach((val) => {
+                // console.log(val.id);
+                if (+val.id > idComment) {
+                  console.log(val.id);
+                  idComment = +val.id;
+                }
+
+                // data.push({ ...val });
+              });
+              console.log(idComment);
+              idComment++;
+              set(ref(db, "products/" + idComment), {
+                name: name.value,
+                content: content.value,
+                id: idComment,
+              })
+                .then(() => {
+                  alert("data stored successfully");
+                })
+                .catch((err) => {
+                  alert("unsuccessfully,error " + err);
+                });
+              selectAllData();
+              // data = [...snapshot.val()];
+              // name.value = snapshot.val().name;
+              // password.value = snapshot.val().pass;
+            } else {
+              set(ref(db, "products/" + 1), {
+                name: name.value,
+                content: content.value,
+                id: idComment,
+              })
+                .then(() => {
+                  alert("data stored successfully");
+                })
+                .catch((err) => {
+                  alert("unsuccessfully,error " + err);
+                });
+              selectAllData();
+            }
+            // console.log(data);
           })
-          .catch((err) => {
-            alert("unsuccessfully,error " + err);
+          .catch((error) => {
+            alert("Error Select " + error);
           });
       }
-      create.addEventListener("click", insertData);
+
+      function selectAllData() {
+        const dbref = ref(db);
+        get(child(dbref, "products/"))
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              console.log(snapshot.val());
+              container.innerHTML = "";
+              snapshot.val().forEach((val) => {
+                rederComments(val);
+                // data.push({ ...val });
+              });
+              // data = [...snapshot.val()];
+              // name.value = snapshot.val().name;
+              // password.value = snapshot.val().pass;
+            } else {
+              alert("No data found");
+            }
+            // console.log(data);
+          })
+          .catch((error) => {
+            alert("Error Select " + error);
+          });
+      }
+      // function getData() {
+      //   firebase
+      //     .database()
+      //     .ref("products/")
+      //     .on("value", function (snapshot) {
+      //       console.log(snapshot.val());
+      //     });
+      // }
+      function updateData() {
+        update(ref(db, "products/" + idComment), {
+          name: name.value,
+          pass: password.value,
+        })
+          .then(() => {
+            alert("data update stored successfully");
+          })
+          .catch((err) => {
+            alert("unsuccessfully update,error " + err);
+          });
+      }
+      function removeData() {
+        remove(ref(db, "products/" + idComment))
+          .then(() => {
+            alert("data remove stored successfully");
+          })
+          .catch((err) => {
+            alert("unsuccessfully remove,error " + err);
+          });
+      }
+      // create.addEventListener("click", insertData);
+      create.addEventListener("click", async function (e) {
+        await insertData();
+        e.preventDefault();
+        setTimeout(() => {
+          commentfrom.reset();
+        }, 2000);
+      });
+
+      // select.addEventListener("click", async function () {
+      //   let data = [1, 2, 3, 4];
+      //   // data = await selectAllData();
+      //   console.log(data);
+      //   console.log(data.length);
+      //   // if (data.length > 0) {
+      //   data.forEach((item) => {
+      //     console.log("a");
+      //   });
+      //   // }
+      // });
+      select?.addEventListener("click", selectAllData);
+
+      updatee?.addEventListener("click", updateData);
+      deletee?.addEventListener("click", removeData);
+      selectAllData();
     </script>
   </body>
 </html>
