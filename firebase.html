@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>firebase</h1>
+    <form action="">
+      <input type="number" placeholder="id" class="id" />
+      <input type="text" class="name" name="name" placeholder="name" />
+      <input
+        type="text"
+        class="password"
+        name="password"
+        placeholder="password"
+      />
+
+      <button type="button" id="create">create</button>
+      <button type="button" id="delete">delete</button>
+      <!-- <button type="button" id="create">create</button> -->
+    </form>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.8.2/firebase-app.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB2qe7npRtRk9SrlwG-sBy2St01WZ3zuFw",
+        authDomain: "learn-firebse-4eb3a.firebaseapp.com",
+        projectId: "learn-firebse-4eb3a",
+        storageBucket: "learn-firebse-4eb3a.appspot.com",
+        messagingSenderId: "1017614035160",
+        appId: "1:1017614035160:web:27f354a49dca83c3c7cfad",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      import {
+        getDatabase,
+        ref,
+        set,
+        child,
+        update,
+        remove,
+      } from "https://www.gstatic.com/firebasejs/9.8.2/firebase-database.js";
+      const db = getDatabase();
+      const name = document.querySelector(".name");
+      const id = document.querySelector(".id");
+
+      const password = document.querySelector(".password");
+      const create = document.querySelector("#create");
+      const deletE = document.querySelector("#delete");
+      function insertData() {
+        set(ref(db, "products/" + id.value), {
+          name: name.value,
+          pass: password.value,
+          id: id.value,
+        })
+          .then(() => {
+            alert("data stored successfully");
+          })
+          .catch((err) => {
+            alert("unsuccessfully,error " + err);
+          });
+      }
+      create.addEventListener("click", insertData);
+    </script>
+  </body>
+</html>
